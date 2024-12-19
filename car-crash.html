@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Crash Visualization</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle, #ff4500, #8b0000);
+    }
+    canvas {
+      display: block;
+    }
+    #stats {
+      position: absolute;
+      top: 10%;
+      left: 5%;
+      background: rgba(255, 69, 0, 0.9);
+      padding: 10px;
+      color: white;
+      border-radius: 8px;
+      font-family: Arial, sans-serif;
+      max-width: 300px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="stats">Hover over the crash for surprising facts!</div>
+  <canvas id="collisionCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('collisionCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let cars = [];
+    const colors = ['#FF8C00', '#FFD700', '#FF4500'];
+    const facts = [
+      "Car crashes are the leading cause of death for ages 5-29.",
+      "Every year, 1.35 million people die in car crashes globally.",
+      "Speeding accounts for over 26% of all fatal crashes.",
+      "Seat belts reduce crash deaths by 45%!",
+      "Distracted driving causes 1 in 5 accidents."
+    ];
+
+    function createCar(x, y, color) {
+      return { x, y, color, dx: Math.random() * 4 - 2, dy: Math.random() * 4 - 2 };
+    }
+
+    function generateCars(num) {
+      for (let i = 0; i < num; i++) {
+        let x = Math.random() * canvas.width;
+        let y = Math.random() * canvas.height;
+        let color = colors[Math.floor(Math.random() * colors.length)];
+        cars.push(createCar(x, y, color));
+      }
+    }
+
+    function drawCar(car) {
+      ctx.fillStyle = car.color;
+      ctx.beginPath();
+      ctx.arc(car.x, car.y, 20, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      cars.forEach(car => {
+        car.x += car.dx;
+        car.y += car.dy;
+
+        // Bounce off walls
+        if (car.x < 0 || car.x > canvas.width) car.dx *= -1;
+        if (car.y < 0 || car.y > canvas.height) car.dy *= -1;
+
+        drawCar(car);
+      });
+
+      requestAnimationFrame(update);
+    }
+
+    function showFact(x, y) {
+      const fact = facts[Math.floor(Math.random() * facts.length)];
+      const statsDiv = document.getElementById('stats');
+      statsDiv.style.left = `${x}px`;
+      statsDiv.style.top = `${y}px`;
+      statsDiv.innerHTML = fact;
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      showFact(e.clientX, e.clientY);
+    });
+
+    generateCars(10);
+    update();
+  </script>
+</body>
+</html>
